@@ -1,5 +1,6 @@
-import {Node, NodeLevel, NodeWeight} from './read/Node';
+import {Node, NodeLevel, NodeWeight, Concat} from './read/Node';
 import Edge from './read/Edge';
+import {toFrame} from './Activity';
 
 document.getElementById("file").onchange = function() {
     
@@ -43,13 +44,6 @@ document.getElementById("file").onchange = function() {
     fileReader.readAsText(file);
 }
 
-class Concat {
-    constructor(joinednodes , count) {
-        this.joinednodes = joinednodes,
-        this.count = count
-    }
-}
-
 let makeEdges = function(nodeWeightList) {
 
     let nodeList = [];
@@ -57,14 +51,18 @@ let makeEdges = function(nodeWeightList) {
     let i = 0;
     nodeWeightList.forEach(element => {
             for(var i = 0 ; i < element.node.length-1; i++) {
-                let edge = new Edge(element.node[i].trim(), element.node[i+1].trim(), element.weight);
+                let edge = new Edge(
+                    element.node[i].trim(),
+                    element.node[i+1].trim(),
+                    element.weight
+                );
                 edgeList.push(edge);
             }
             for(var i = 0 ; i < element.node.length; i++) {                    
                 nodeList.push(element.node[i].trim());
             }
     });
-    // console.log(nodeList);
+
     return [nodeList, edgeList];
 }
 
@@ -84,7 +82,7 @@ function groupAndAddWeight(nodeList, edgeList, nodeLevelList) {
     
             concat.push(newconcat);
         }
-        
+
     )
 
     let linq = Enumerable.From(concat);
@@ -93,7 +91,7 @@ function groupAndAddWeight(nodeList, edgeList, nodeLevelList) {
         .Select(function(x){
           return {
             joinednodes: x.Key(),
-            count: x.Sum(function(y){ return y.count|0; })
+            weight: x.Sum(function(y){ return y.weight|0; })
           };
         }).ToArray();
 
@@ -102,11 +100,12 @@ function groupAndAddWeight(nodeList, edgeList, nodeLevelList) {
     result.forEach(
         element => {
             var res = element.joinednodes.split('|');
-            var edge = new Edge(res[0], res[1], element.weight);
+            var edge = new Edge(res[0], res[1], element.weight.toString());
             finalEdges.push(edge);
         }
     )
     
-    console.log(finalEdges, uniqueNodes, nodeLevelList)
-    // toVisFrame(finalFromTo, uniqueNodes, nodeLevelList);
+    // console.log(finalEdges, uniqueNodes, nodeLevelList)
+    
+    toFrame(finalEdges, uniqueNodes, nodeLevelList);
 }

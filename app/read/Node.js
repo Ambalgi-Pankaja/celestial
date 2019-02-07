@@ -19,4 +19,11 @@ class NodeWeight {
     }
 }
 
-export {Node, NodeLevel, NodeWeight};
+class Concat {
+    constructor(joinednodes , weight) {
+        this.joinednodes = joinednodes,
+        this.weight = weight
+    }
+}
+
+export {Node, NodeLevel, NodeWeight, Concat};

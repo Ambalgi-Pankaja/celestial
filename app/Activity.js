@@ -1,72 +1,48 @@
-import {highlight} from './Options';
+import {hierarchy} from './Options';
 import vis from '../node_modules/vis';
 
-class Activity {
-
-    constructor(id, label, group, level){
-        this.id = id,
-        this.label = label,
-        this.group = group,
-        this.level = level
-    }
-}
-
-class VisEdges{
-    constructor(from, to, label){
-        this.from = from,
-        this.to = to,
-        this.label = label
-    }
-}
-
-    function toFrame(edges, nodes, nodeLevelList) {
-
-        var activities = getActivities(nodes, nodeLevelList);
-        
-        var nodes = new vis.DataSet(activities);
-
-        var visEdges = new vis.DataSet(getEdges(edges));
-        
+    function toVisFrame(nodes, edges) {
+        var visNodes = new vis.DataSet(nodes);
+    
+        var visEdges = new vis.DataSet(edges);
+      
         var container = document.getElementById('mynetwork');
 
         var data = {
-            nodes: nodes,
+            nodes: visNodes,
             edges: visEdges
         };
 
-        var network = new vis.Network(container, data, highlight());
+        var network = new vis.Network(container, data, hierarchy());
     }
 
-    function getActivities(nodes, nodeLevelList) {
-        var activities = [];
-        nodes.forEach(element => {
-            var thisNode = element;
-            var nodeLevel = nodeLevelList.find(function(element){
-                if (element.node == thisNode){
-                    return element.level
-                };
-            });
-            
-            let activity = new Activity(
-                element, element.split('/').join("/\n"), 1, nodeLevel.level
-            )
-            activities.push(activity)
+    function toGraph(ctx, labelList, dataList) {
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labelList,
+                datasets: [{
+                    label: '# of requests for a service trace',
+                    data: dataList,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Number of requests for each service trace'
+                  },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
         });
-
-        return activities;
     }
 
-    function getEdges(edges) {
-        var visEdges = [];
-        edges.forEach(element => {
-        let edge = new VisEdges(
-            element.from,
-            element.to,
-            element.weight.toString()
-        )   
-        visEdges.push(edge);
-    });
-        return visEdges;
-    }
-
-export {Activity, toFrame}
+export {toVisFrame, toGraph}
